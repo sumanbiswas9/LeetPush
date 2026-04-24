@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeetPush Settings — Configure GitHub Connection</title>
+  <meta name="description" content="Configure your GitHub credentials and preferences for LeetPush. Manage repositories, themes, and push settings." />
+  <meta name="keywords" content="LeetPush, settings, GitHub, repository, configuration, Chrome extension" />
+  <meta name="author" content="LeetPush" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="LeetPush Settings" />
+  <meta property="og:description" content="Configure your GitHub credentials and preferences for LeetPush." />
+  <meta property="og:type" content="website" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="LeetPush Settings" />
+  <meta name="twitter:description" content="Configure your GitHub credentials and preferences for LeetPush." />
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "LeetPush",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Chrome",
+    "description": "Push your LeetCode solutions directly to GitHub with a single click — without leaving LeetCode.",
+    "softwareVersion": "1.0.0",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <!-- ── Header ──────────────────────────── -->
+  <header class="options-header" role="banner">
+    <div class="options-header-inner">
+      <img src="../assets/icon128.png" alt="LeetPush logo" class="options-logo" width="48" height="48" loading="lazy" />
+      <div class="options-header-text">
+        <h1>LeetPush Settings</h1>
+        <p>Configure your GitHub connection and preferences</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" role="main">
+    <!-- ── Add Repository Card ───────────── -->
+    <section class="card" id="addRepoCard" aria-labelledby="addRepoTitle">
+      <h2 class="card-title" id="addRepoTitle">🔗 Add GitHub Repository</h2>
+      <div class="card-subtitle">Enter your GitHub credentials to connect a repository</div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputToken">Personal Access Token (PAT) <span class="required" aria-label="required">*</span></label>
+        <input type="password" class="form-input" id="inputToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" aria-required="true" />
+        <div class="form-hint">
+          Generate a token at
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=LeetPush" target="_blank" rel="noopener noreferrer">
+            github.com/settings/tokens
+          </a>
+          with <strong>repo</strong> scope.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputUsername">GitHub Username <span class="required" aria-label="required">*</span></label>
+        <input type="text" class="form-input" id="inputUsername" placeholder="your-username" autocomplete="off" aria-required="true" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputRepo">Repository Name <span class="required" aria-label="required">*</span></label>
+        <input type="text" class="form-input" id="inputRepo" placeholder="leetcode-solutions" autocomplete="off" aria-required="true" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputBranch">Branch</label>
+        <input type="text" class="form-input" id="inputBranch" placeholder="main" value="main" autocomplete="off" />
+        <div class="form-hint">Default branch name. Usually "main" or "master".</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="btnTestConnection">🔌 Test Connection</button>
+        <button class="btn btn-primary" id="btnSaveRepo">💾 Save Repository</button>
+      </div>
+
+      <div class="status-message" id="statusMessage" role="status" aria-live="polite">
+        <span id="statusIcon" aria-hidden="true"></span>
+        <span id="statusText"></span>
+      </div>
+    </section>
+
+    <!-- ── Saved Repositories Card ────────── -->
+    <section class="card" aria-labelledby="savedReposTitle">
+      <h2 class="card-title" id="savedReposTitle">📚 Saved Repositories</h2>
+      <div class="card-subtitle">Manage your connected repositories. The first one is the default.</div>
+
+      <div class="repo-list" id="repoList" aria-label="Saved repository list">
+        <div class="repo-empty">
+          No repositories saved yet.
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Preferences Card ──────────────── -->
+    <section class="card" aria-labelledby="prefsTitle">
+      <h2 class="card-title" id="prefsTitle">⚙️ Preferences</h2>
+      <div class="card-subtitle">Customize your LeetPush experience</div>
+
+      <div class="theme-toggle-row">
+        <div>
+          <div class="pref-title">🌙 Dark / Light Theme</div>
+          <div class="pref-subtitle">Toggle between dark and light mode</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="themeToggle" aria-label="Toggle dark or light theme" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ── About Card ────────────────────── -->
+    <section class="card" aria-labelledby="aboutTitle">
+      <h2 class="card-title" id="aboutTitle">ℹ️ About LeetPush</h2>
+      <div class="card-subtitle">Version 1.0.0</div>
+      <p class="about-text">
+        LeetPush lets you push your LeetCode solutions directly to GitHub with a single click.
+        <br/>
+        All data is stored locally in your browser. Your GitHub token never leaves your machine.
+      </p>
+    </section>
+
+    <!-- ── Buy Me a Coffee / Support Section ── -->
+    <section class="card support-card" aria-labelledby="supportTitle">
+      <h2 class="card-title support-card-title" id="supportTitle">
+        <span class="support-heart" aria-hidden="true">❤️</span>
+        Support this project
+      </h2>
+      <p class="support-card-description">
+        If LeetPush saves you time, consider buying me a coffee! Every contribution keeps this project alive.
+      </p>
+      <div class="support-qr-wrapper">
+        <img
+          src="../assets/QR.jpeg"
+          alt="Scan this QR code to buy the developer a coffee and support LeetPush"
+          class="qr-code-img-options"
+          width="160"
+          height="160"
+          loading="lazy"
+        />
+      </div>
+      <p class="support-scan-hint">Scan to donate ☕</p>
+    </section>
+  </main>
+
+  <footer class="options-footer" role="contentinfo">
+    <p>Made with ❤️ by the LeetPush developer &middot; v1.0.0</p>
+  </footer>
+
+  <script src="options.js"></script>
+</body>
+</html>

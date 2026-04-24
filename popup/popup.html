@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeetPush — Push LeetCode Solutions to GitHub</title>
+  <meta name="description" content="Push your LeetCode solutions directly to GitHub with a single click. Organize, track, and share your coding progress effortlessly." />
+  <meta name="keywords" content="LeetCode, GitHub, push, solutions, coding, Chrome extension, LeetPush" />
+  <meta name="author" content="LeetPush" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="LeetPush — Push LeetCode Solutions to GitHub" />
+  <meta property="og:description" content="Push your LeetCode solutions directly to GitHub with a single click." />
+  <meta property="og:type" content="website" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="LeetPush" />
+  <meta name="twitter:description" content="Push your LeetCode solutions directly to GitHub with a single click." />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <!-- ── Header ──────────────────────────── -->
+  <header class="header" role="banner">
+    <div class="header-left">
+      <img src="../assets/icon48.png" alt="LeetPush logo" class="header-logo" width="28" height="28" />
+      <h1 class="header-title">LeetPush</h1>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" id="btnThemeToggle" title="Toggle theme" aria-label="Toggle dark and light theme">🌙</button>
+      <button class="header-btn" id="btnSettings" title="Settings" aria-label="Open extension settings">⚙️</button>
+    </div>
+  </header>
+
+  <!-- ── Repo Selector ───────────────────── -->
+  <div class="repo-bar" id="repoBar" role="region" aria-label="Repository selector">
+    <label for="repoSelect">Repo</label>
+    <select class="repo-select" id="repoSelect" aria-label="Select target GitHub repository"></select>
+  </div>
+
+  <!-- ── Tabs ────────────────────────────── -->
+  <nav class="tabs" id="tabNav" role="tablist" aria-label="Main navigation">
+    <button class="tab-btn active" data-tab="push" role="tab" aria-selected="true" aria-controls="tabPush" id="tabBtnPush">🚀 Push</button>
+    <button class="tab-btn" data-tab="history" role="tab" aria-selected="false" aria-controls="tabHistory" id="tabBtnHistory">📋 History</button>
+  </nav>
+
+  <main role="main">
+  <!-- ── Not LeetCode Screen ─────────────── -->
+  <section id="notLeetCode" class="not-leetcode hidden" role="alert" aria-label="Not on LeetCode">
+    <div class="not-leetcode-icon" aria-hidden="true">📝</div>
+    <h2>Not on a LeetCode Problem</h2>
+    <p>Navigate to a LeetCode problem page to use LeetPush.<br/>
+    <em>Example: leetcode.com/problems/two-sum</em></p>
+  </section>
+
+  <!-- ── Not Configured Screen ───────────── -->
+  <section id="notConfigured" class="not-configured hidden" role="alert" aria-label="Setup required">
+    <div class="not-configured-icon" aria-hidden="true">🔧</div>
+    <h2>Setup Required</h2>
+    <p>Configure your GitHub credentials to start pushing solutions.</p>
+    <button class="btn-configure" id="btnGoSettings" aria-label="Open extension settings">⚙️ Open Settings</button>
+  </section>
+
+  <!-- ── Loading Screen ─────────────────── -->
+  <section id="loadingScreen" class="loading-screen hidden" role="status" aria-label="Loading">
+    <div class="spinner-large" aria-hidden="true"></div>
+    <p>Loading problem info...</p>
+  </section>
+
+  <!-- ── Push Tab ────────────────────────── -->
+  <section class="tab-content active" id="tabPush" role="tabpanel" aria-labelledby="tabBtnPush">
+    <!-- Problem Info Card -->
+    <div class="problem-card" id="problemCard">
+      <div class="problem-header">
+        <div class="problem-title" id="problemTitle">
+          <span class="problem-number" id="problemNumber">—</span>
+          <span id="problemName">Loading...</span>
+        </div>
+        <span class="badge" id="difficultyBadge">—</span>
+      </div>
+      <div class="problem-meta">
+        <span class="meta-item">
+          <span class="icon">💻</span>
+          <span id="langDisplay">—</span>
+        </span>
+        <span class="meta-item">
+          <span class="icon">🔗</span>
+          <a href="#" id="problemLink" target="_blank" class="problem-link">Open on LeetCode</a>
+        </span>
+      </div>
+
+      <!-- Code Preview -->
+      <div class="code-preview">
+        <button class="code-preview-toggle" id="codeToggle" aria-expanded="false" aria-controls="codePreview">
+          <span class="chevron" aria-hidden="true">▶</span>
+          <span>Preview Code</span>
+        </button>
+        <pre class="code-preview-content" id="codePreview" role="region" aria-label="Code preview"></pre>
+      </div>
+    </div>
+
+    <!-- Warning (no code) -->
+    <div class="warning-box hidden" id="warningBox" role="alert" aria-live="polite">
+      <span class="icon" aria-hidden="true">⚠️</span>
+      <span id="warningText">No code detected yet. Solve the problem first!</span>
+    </div>
+
+    <!-- File Name Preview -->
+    <div class="file-name-preview" id="fileNamePreview" aria-label="Generated file name">
+      <span class="icon" aria-hidden="true">📄</span>
+      <span id="fileNameText">—</span>
+    </div>
+
+    <!-- Folder Selector -->
+    <div>
+      <div class="section-title">
+        <span>📂 Select Folder</span>
+        <button class="btn-refresh" id="btnRefreshFolders" title="Refresh folder tree" aria-label="Refresh folder tree">🔄</button>
+      </div>
+      <div class="folder-search-wrapper">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="text" class="folder-search" id="folderSearch" placeholder="Search folders..." aria-label="Search folders" />
+      </div>
+      <div class="folder-tree" id="folderTree" aria-label="Repository folder tree">
+        <div class="folder-loading"><span class="spinner" aria-hidden="true"></span>Loading folders...</div>
+      </div>
+      <div class="new-folder-row">
+        <input type="text" class="new-folder-input" id="newFolderInput" placeholder="New folder path (e.g., DSA/Arrays)" aria-label="New folder path" />
+        <button class="btn-new-folder" id="btnNewFolder" aria-label="Create new folder">+ Create</button>
+      </div>
+    </div>
+
+    <!-- Commit Message -->
+    <div>
+      <div class="section-title" id="commitLabel">💬 Commit Message</div>
+      <input type="text" class="commit-input" id="commitInput" placeholder="Auto-generated commit message..." aria-labelledby="commitLabel" />
+    </div>
+
+    <!-- Push Button -->
+    <button class="btn-push" id="btnPush" disabled>
+      <span id="btnPushText">Push to GitHub 🚀</span>
+    </button>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <div class="toast-content">
+        <span class="toast-icon" id="toastIcon" aria-hidden="true"></span>
+        <span id="toastMessage"></span>
+      </div>
+      <button class="btn-undo hidden" id="btnUndo" aria-label="Undo last push">↩️ Undo</button>
+    </div>
+  </section>
+
+  <!-- ── History Tab ─────────────────────── -->
+  <section class="tab-content" id="tabHistory" role="tabpanel" aria-labelledby="tabBtnHistory">
+    <div class="history-header">
+      <h2 class="history-heading">Push History</h2>
+      <button class="btn-clear-history" id="btnClearHistory" aria-label="Clear all push history">🗑 Clear All</button>
+    </div>
+    <div class="history-list" id="historyList" aria-label="List of pushed solutions">
+      <div class="history-empty">
+        <span class="icon" aria-hidden="true">📭</span>
+        No pushes yet. Solve a problem and push it!
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Duplicate File Modal ────────────── -->
+  <div class="modal-overlay" id="duplicateModal" role="dialog" aria-modal="true" aria-labelledby="duplicateModalTitle">
+    <div class="modal">
+      <h2 id="duplicateModalTitle">⚠️ File Already Exists</h2>
+      <p id="duplicateMessage">A file with this name already exists in the selected folder. What would you like to do?</p>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-primary" id="btnOverwrite" aria-label="Overwrite existing file">🔄 Overwrite / Update</button>
+        <button class="modal-btn modal-btn-secondary" id="btnNewVersion" aria-label="Push as a new version">📝 Push as New Version</button>
+        <button class="modal-btn modal-btn-cancel" id="btnCancelDuplicate" aria-label="Cancel duplicate file action">Cancel</button>
+      </div>
+    </div>
+  </div>
+  </main>
+
+  <!-- ── Buy Me a Coffee / Support Section ── -->
+  <footer class="support-footer" role="contentinfo" aria-label="Support this project">
+    <div class="support-inner">
+      <div class="support-text">
+        <span class="support-heart" aria-hidden="true">❤️</span>
+        <span class="support-label">Support this project</span>
+      </div>
+      <p class="support-description">If LeetPush helps you, consider buying me a coffee!</p>
+      <div class="support-qr">
+        <img
+          src="../assets/QR.jpeg"
+          alt="Scan this QR code to buy the developer a coffee and support LeetPush"
+          class="qr-code-img"
+          width="120"
+          height="120"
+          loading="lazy"
+        />
+      </div>
+      <p class="support-scan-hint">Scan to donate</p>
+    </div>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
